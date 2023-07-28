@@ -4,9 +4,11 @@ import { BookService } from './book.service';
 import { Mongoose } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
 import { bookSchema } from './schema/book.schema';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([
       {
         name: 'Books',

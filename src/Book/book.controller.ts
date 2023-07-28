@@ -7,9 +7,11 @@ import {
   Body,
   Param,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('Books')
 export class BookController {
@@ -20,6 +22,7 @@ export class BookController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   async addBook(@Body() body: CreateBookDto) {
     return this.bookProvider.addBook(body);
   }
