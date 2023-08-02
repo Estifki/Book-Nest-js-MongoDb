@@ -12,6 +12,10 @@ import {
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/guard/jwt.guard';
+import { RoleGuard } from 'src/guard/role.guard';
+import { Role } from 'src/utils/role.enum';
+import { Roles } from 'src/guard/role.decorator';
 
 @Controller('Books')
 export class BookController {
@@ -22,7 +26,8 @@ export class BookController {
   }
 
   @Post()
-  @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.Admin)
   async addBook(@Body() body: CreateBookDto) {
     return this.bookProvider.addBook(body);
   }
@@ -33,6 +38,8 @@ export class BookController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.Admin)
   async deleteBook(@Param('id') id: string) {
     return this.bookProvider.deleteBook(id);
   }

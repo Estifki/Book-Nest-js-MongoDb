@@ -8,6 +8,8 @@ import { Model } from 'mongoose';
 import { User } from '../user/schema/user.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { SignUpDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,25 +19,24 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(signUpBody): Promise<{
+  async signUp(signUpBody: SignUpDto): Promise<{
     user: User;
     token: string;
   }> {
-    const { username, email, password } = signUpBody;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const { email } = signUpBody;
+    const validEmail = await this.userModel.findOne({ email });
 
-    const existingUser = await this.userModel.findOne({ email });
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+    if (validEmail) {
+      throw new ConflictException('Email Already Exist!');
     }
+    const hashedPassword = await bcrypt.hash(signUpBody.password, 10);
 
     const user = await this.userModel.create({
-      username,
-      email,
+      ...signUpBody,
       password: hashedPassword,
     });
 
-    const token = this.jwtService.sign({ id: user._id });
+    const token = this.jwtService.sign({ id: user._id, role: user.role });
 
     return {
       user: user,
@@ -43,7 +44,7 @@ export class AuthService {
     };
   }
 
-  async login(loginBody) {
+  async login(loginBody: LoginDto) {
     const { email, password } = loginBody;
 
     const user = await this.userModel.findOne({ email });
@@ -55,7 +56,7 @@ export class AuthService {
     if (!isPassword) {
       throw new UnauthorizedException('Incorrect Email or Password');
     }
-    const token = this.jwtService.sign({ id: user._id });
+    const token = this.jwtService.sign({ id: user._id, role: user.role });
 
     return {
       user: user,
@@ -63,7 +64,5 @@ export class AuthService {
     };
   }
 
-  // async getAllUsers(): Promise<User[]>{
-  //   return this.userModel.find();
-  // }
+ 
 }
