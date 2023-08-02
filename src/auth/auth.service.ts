@@ -23,7 +23,13 @@ export class AuthService {
     user: User;
     token: string;
   }> {
-    const { email } = signUpBody;
+    const { username,email } = signUpBody;
+
+    const validUserName = await this.userModel.findOne({ username });
+
+    if (validUserName) {
+      throw new ConflictException('User Name Already Exist!');
+    }
     const validEmail = await this.userModel.findOne({ email });
 
     if (validEmail) {

@@ -19,28 +19,28 @@ import { Roles } from 'src/guard/role.decorator';
 
 @Controller('Books')
 export class BookController {
-  constructor(private readonly bookProvider: BookService) {}
+  constructor(private readonly bookService: BookService) {}
   @Get()
   async getBooks() {
-    return this.bookProvider.getBooks();
+    return this.bookService.getBooks();
   }
 
   @Post()
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.Admin)
   async addBook(@Body() body: CreateBookDto) {
-    return this.bookProvider.addBook(body);
+    return this.bookService.addBook(body);
   }
 
   @Get(':id')
   async getById(@Param('id') id: string) {
-    return this.bookProvider.getById(id);
+    return this.bookService.getById(id);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.Admin)
   async deleteBook(@Param('id') id: string) {
-    return this.bookProvider.deleteBook(id);
+    return this.bookService.deleteBook(id);
   }
 }
